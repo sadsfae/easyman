@@ -4,9 +4,17 @@
 
 A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand), making it easy for Project 1999 players to enable and disable the login middleman proxy without manual file editing.
 
-| First Launch | Enabled and Running | Application Settings |
-|:---:|:---:|:---:|
-| ![First Launch](image/easyman1.png) | ![Enabled and Running](image/easyman2.png) | ![Application Settings](image/easyman-settings.png) |
+**First Launch**
+
+![First Launch](image/easyman1.png)
+
+**Enabled and Running**
+
+![Enabled and Running](image/easyman2.png)
+
+**Application Settings**
+
+![Application Settings](image/easyman-settings.png)
 
 ## Credits
 
