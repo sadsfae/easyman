@@ -1,10 +1,12 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Easyman;
 
 public partial class MainForm : Form
 {
     private readonly MiddlemanProcess _middleman = new();
+    private AppSettings _settings = new();
     private string? _eqHostPath;
 
     private static string SettingsPath =>
@@ -12,6 +14,12 @@ public partial class MainForm : Form
 
     private static string MiddlemanExePath =>
         Path.Combine(AppContext.BaseDirectory, "middleman.exe");
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     public MainForm()
     {
@@ -44,12 +52,16 @@ public partial class MainForm : Form
         try
         {
             var json = File.ReadAllText(SettingsPath);
-            var settings = JsonSerializer.Deserialize<AppSettings>(json);
-            if (settings?.EqHostPath is not null && File.Exists(settings.EqHostPath))
+            var loaded = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions);
+            if (loaded is not null)
             {
-                _eqHostPath = settings.EqHostPath;
-                txtEqHostPath.Text = _eqHostPath;
-                RefreshState();
+                _settings = loaded;
+                if (_settings.EqHostPath is not null && File.Exists(_settings.EqHostPath))
+                {
+                    _eqHostPath = _settings.EqHostPath;
+                    txtEqHostPath.Text = _eqHostPath;
+                    RefreshState();
+                }
             }
         }
         catch (JsonException)
@@ -59,8 +71,8 @@ public partial class MainForm : Form
 
     private void SaveSettings()
     {
-        var settings = new AppSettings { EqHostPath = _eqHostPath };
-        var json = JsonSerializer.Serialize(settings);
+        _settings.EqHostPath = _eqHostPath;
+        var json = JsonSerializer.Serialize(_settings, JsonOptions);
         File.WriteAllText(SettingsPath, json);
     }
 
@@ -73,8 +85,11 @@ public partial class MainForm : Form
             lblStatus.ForeColor = SystemColors.GrayText;
             btnToggle.Enabled = false;
             btnToggle.Text = "Enable Middleman";
+            btnRevert.Enabled = false;
             return;
         }
+
+        var fileState = EqHostManager.GetState(_eqHostPath);
 
         if (_middleman.IsRunning)
         {
@@ -92,6 +107,7 @@ public partial class MainForm : Form
         }
 
         btnToggle.Enabled = true;
+        btnRevert.Enabled = fileState == MiddlemanState.On;
     }
 
     private void BtnBrowse_Click(object? sender, EventArgs e)
@@ -154,30 +170,87 @@ public partial class MainForm : Form
         }
     }
 
+    private void BtnRevert_Click(object? sender, EventArgs e)
+    {
+        if (_eqHostPath is null)
+            return;
+
+        if (_middleman.IsRunning)
+        {
+            var result = MessageBox.Show(
+                "Middleman is still running. Stop it too?",
+                "Easyman",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+                _middleman.Stop();
+        }
+
+        EqHostManager.SetState(_eqHostPath, MiddlemanState.Off);
+        RefreshState();
+    }
+
+    private void BtnSettings_Click(object? sender, EventArgs e)
+    {
+        using var form = new SettingsForm(_settings);
+
+        if (form.ShowDialog(this) != DialogResult.OK)
+            return;
+
+        bool themeChanged = _settings.UseDarkTheme != form.ChosenTheme;
+
+        _settings.OnCloseAction = form.ChosenCloseAction;
+        _settings.UseDarkTheme = form.ChosenTheme;
+        SaveSettings();
+
+        if (themeChanged)
+        {
+            MessageBox.Show(
+                "Theme changes will take effect the next time Easyman is started.",
+                "Easyman",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+    }
+
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
         if (_middleman.IsRunning)
         {
-            var result = MessageBox.Show(
-                "Middleman is still running.\n\n" +
-                "Click Yes to disable middleman and restore eqhost.txt.\n" +
-                "Click No to close Easyman but leave middleman running.\n" +
-                "Click Cancel to go back.",
-                "Easyman",
-                MessageBoxButtons.YesNoCancel,
-                MessageBoxIcon.Question);
-
-            if (result == DialogResult.Cancel)
+            switch (_settings.OnCloseAction)
             {
-                e.Cancel = true;
-                return;
-            }
+                case CloseAction.RevertOnClose:
+                    _middleman.Stop();
+                    if (_eqHostPath is not null)
+                        EqHostManager.SetState(_eqHostPath, MiddlemanState.Off);
+                    break;
 
-            if (result == DialogResult.Yes)
-            {
-                _middleman.Stop();
-                if (_eqHostPath is not null)
-                    EqHostManager.SetState(_eqHostPath, MiddlemanState.Off);
+                case CloseAction.KeepOnClose:
+                    _middleman.Stop();
+                    break;
+
+                case CloseAction.Ask:
+                default:
+                    using (var prompt = new ClosePromptForm())
+                    {
+                        if (prompt.ShowDialog(this) != DialogResult.OK)
+                        {
+                            e.Cancel = true;
+                            return;
+                        }
+
+                        if (prompt.RememberChoice)
+                        {
+                            _settings.OnCloseAction = prompt.ChosenAction;
+                            SaveSettings();
+                        }
+
+                        _middleman.Stop();
+                        if (prompt.ChosenAction == CloseAction.RevertOnClose && _eqHostPath is not null)
+                            EqHostManager.SetState(_eqHostPath, MiddlemanState.Off);
+                    }
+                    break;
             }
         }
 
@@ -186,7 +259,16 @@ public partial class MainForm : Form
     }
 }
 
-internal class AppSettings
+public enum CloseAction
+{
+    Ask,
+    RevertOnClose,
+    KeepOnClose
+}
+
+public class AppSettings
 {
     public string? EqHostPath { get; set; }
+    public CloseAction OnCloseAction { get; set; } = CloseAction.Ask;
+    public bool? UseDarkTheme { get; set; }
 }

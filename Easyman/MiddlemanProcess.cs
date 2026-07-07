@@ -12,7 +12,11 @@ public class MiddlemanProcess : IDisposable
 
     public static bool HasExistingProcess()
     {
-        return Process.GetProcessesByName(ProcessName).Length > 0;
+        var procs = Process.GetProcessesByName(ProcessName);
+        bool found = procs.Length > 0;
+        foreach (var p in procs)
+            p.Dispose();
+        return found;
     }
 
     public static void KillExisting()
@@ -36,6 +40,12 @@ public class MiddlemanProcess : IDisposable
     {
         if (_process is not null && !_process.HasExited)
             return;
+
+        if (_process is not null)
+        {
+            _process.Dispose();
+            _process = null;
+        }
 
         if (HasExistingProcess())
         {

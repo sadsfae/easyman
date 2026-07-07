@@ -11,6 +11,8 @@ partial class MainForm
     private Panel pnlIndicator;
     private Label lblStatus;
     private Button btnToggle;
+    private Button btnRevert;
+    private Button btnSettings;
     private Label lblCredit;
 
     protected override void Dispose(bool disposing)
@@ -29,6 +31,8 @@ partial class MainForm
         pnlIndicator = new Panel();
         lblStatus = new Label();
         btnToggle = new Button();
+        btnRevert = new Button();
+        btnSettings = new Button();
         lblCredit = new Label();
         SuspendLayout();
 
@@ -77,18 +81,33 @@ partial class MainForm
         btnToggle.Enabled = false;
         btnToggle.Click += BtnToggle_Click;
 
+        // btnRevert
+        btnRevert.Font = new Font("Segoe UI", 8F);
+        btnRevert.Location = new Point(115, 200);
+        btnRevert.Size = new Size(150, 25);
+        btnRevert.Text = "Revert eqhost.txt";
+        btnRevert.Enabled = false;
+        btnRevert.Click += BtnRevert_Click;
+
+        // btnSettings
+        btnSettings.Font = new Font("Segoe UI", 8F);
+        btnSettings.Location = new Point(305, 240);
+        btnSettings.Size = new Size(68, 22);
+        btnSettings.Text = "Settings";
+        btnSettings.Click += BtnSettings_Click;
+
         // lblCredit
         lblCredit.Font = new Font("Segoe UI", 8F);
         lblCredit.ForeColor = SystemColors.GrayText;
-        lblCredit.Location = new Point(12, 210);
-        lblCredit.Size = new Size(360, 20);
+        lblCredit.Location = new Point(12, 240);
+        lblCredit.Size = new Size(290, 20);
         lblCredit.Text = "Powered by p99-login-middlemand by @rm-you";
-        lblCredit.TextAlign = ContentAlignment.MiddleCenter;
+        lblCredit.TextAlign = ContentAlignment.MiddleLeft;
 
         // MainForm
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(384, 236);
+        ClientSize = new Size(384, 270);
         Controls.Add(lblTitle);
         Controls.Add(lblPath);
         Controls.Add(txtEqHostPath);
@@ -96,6 +115,8 @@ partial class MainForm
         Controls.Add(pnlIndicator);
         Controls.Add(lblStatus);
         Controls.Add(btnToggle);
+        Controls.Add(btnRevert);
+        Controls.Add(btnSettings);
         Controls.Add(lblCredit);
         FormBorderStyle = FormBorderStyle.FixedSingle;
         MaximizeBox = false;
