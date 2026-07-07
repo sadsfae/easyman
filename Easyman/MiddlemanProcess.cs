@@ -90,6 +90,8 @@ public class MiddlemanProcess : IDisposable
     public void Dispose()
     {
         Stop();
+        _process?.Dispose();
+        _process = null;
         GC.SuppressFinalize(this);
     }
 }
