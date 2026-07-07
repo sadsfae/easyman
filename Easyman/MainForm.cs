@@ -26,6 +26,13 @@ public partial class MainForm : Form
         InitializeComponent();
         CheckForExistingProcess();
         LoadSettings();
+        ApplyTheme();
+    }
+
+    private void ApplyTheme()
+    {
+        bool dark = _settings.UseDarkTheme ?? ThemeHelper.DetectSystemDarkMode();
+        ThemeHelper.Apply(this, dark);
     }
 
     private void CheckForExistingProcess()
@@ -194,24 +201,16 @@ public partial class MainForm : Form
     private void BtnSettings_Click(object? sender, EventArgs e)
     {
         using var form = new SettingsForm(_settings);
+        bool dark = _settings.UseDarkTheme ?? ThemeHelper.DetectSystemDarkMode();
+        ThemeHelper.Apply(form, dark);
 
         if (form.ShowDialog(this) != DialogResult.OK)
             return;
 
-        bool themeChanged = _settings.UseDarkTheme != form.ChosenTheme;
-
         _settings.OnCloseAction = form.ChosenCloseAction;
         _settings.UseDarkTheme = form.ChosenTheme;
         SaveSettings();
-
-        if (themeChanged)
-        {
-            MessageBox.Show(
-                "Theme changes will take effect the next time Easyman is started.",
-                "Easyman",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
-        }
+        ApplyTheme();
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)
@@ -234,6 +233,9 @@ public partial class MainForm : Form
                 default:
                     using (var prompt = new ClosePromptForm())
                     {
+                        bool dark = _settings.UseDarkTheme ?? ThemeHelper.DetectSystemDarkMode();
+                        ThemeHelper.Apply(prompt, dark);
+
                         if (prompt.ShowDialog(this) != DialogResult.OK)
                         {
                             e.Cancel = true;

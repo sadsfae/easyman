@@ -52,7 +52,7 @@ To proceed:
 
 ## Building from source
 
-Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
+Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
 
 ```bash
 dotnet publish Easyman/Easyman.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ./publish
