@@ -62,4 +62,6 @@ On Linux, add `-p:EnableWindowsTargeting=true` to cross-compile for Windows.
 
 ## License
 
-This project is open source. See the [middlemand project](https://github.com/rm-you/p99-login-middlemand) for upstream licensing.
+[Open Source](LICENSE.md) (GPLv3). See the [middlemand project](https://github.com/rm-you/p99-login-middlemand) for upstream licensing.
+
+Built with love by Repo/Gretchen \<Europa\>
