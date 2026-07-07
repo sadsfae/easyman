@@ -4,11 +4,11 @@
 
 A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand), making it easy for Project 1999 players to enable and disable the login middleman proxy without manual file editing.
 
-**First Launch**
+**First Launch**  Browse your EQ directory for `eqhost.txt` and click `Enable Middleman`
 
 ![First Launch](image/easyman1.png)
 
-**Enabled and Running**
+**Enabled and Running** Now minimize and launch P99 Everquest
 
 ![Enabled and Running](image/easyman2.png)
 
