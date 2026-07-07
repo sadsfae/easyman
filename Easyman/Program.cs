@@ -10,8 +10,12 @@ static class Program
     {
         ApplicationConfiguration.Initialize();
 
-        var colorMode = ResolveColorMode();
-        Application.SetColorMode(colorMode);
+        // SetColorMode requires Windows 11+ (build 22000+)
+        if (Environment.OSVersion.Version.Build >= 22000)
+        {
+            var colorMode = ResolveColorMode();
+            Application.SetColorMode(colorMode);
+        }
 
         Application.Run(new MainForm());
     }

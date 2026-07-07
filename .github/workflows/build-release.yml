@@ -60,3 +60,28 @@ jobs:
           files: ./Easyman-${{ steps.version.outputs.tag }}.zip
           generate_release_notes: true
           make_latest: true
+          body: |
+            ## Quick Start
+
+            - Download the `.zip` file below and extract it to any folder
+            - Both `Easyman.exe` and `middleman.exe` must be in the same folder
+            - Run `Easyman.exe`
+            - Click **Browse** and locate your `eqhost.txt` in your EverQuest installation directory (one-time setup)
+            - Click **Enable Middleman** to start the login proxy
+            - Launch EverQuest and log in normally
+            - **Keep Easyman open** while you play (you can minimize it)
+            - When done, click **Disable Middleman** or close Easyman
+
+            ## Windows SmartScreen
+
+            On first run you may see "Windows protected your PC." This is normal for new applications:
+            - Click **More info**
+            - Click **Run anyway**
+
+            ## Credits
+
+            Powered by [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand) by [@rm-you](https://github.com/rm-you)
+
+            ---
+
+            ## Changelog

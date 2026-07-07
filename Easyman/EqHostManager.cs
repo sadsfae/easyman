@@ -33,6 +33,9 @@ public static class EqHostManager
 
     public static void SetState(string filePath, MiddlemanState state)
     {
+        if (GetState(filePath) == state)
+            return;
+
         string content = state switch
         {
             MiddlemanState.On =>
