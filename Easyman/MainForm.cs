@@ -205,6 +205,12 @@ public partial class MainForm : Form
 
         EqHostManager.SetState(_eqHostPath, MiddlemanState.Off);
         RefreshState();
+
+        MessageBox.Show(
+            "eqhost.txt has been reverted to the original login server.",
+            "Easyman",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
     }
 
     private void BtnSettings_Click(object? sender, EventArgs e)
