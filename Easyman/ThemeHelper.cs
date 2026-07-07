@@ -56,6 +56,11 @@ public static class ThemeHelper
                     btn.ForeColor = dark ? DarkText : SystemColors.ControlText;
                     btn.FlatStyle = dark ? FlatStyle.Flat : FlatStyle.Standard;
                     break;
+                case LinkLabel ll:
+                    ll.LinkColor = dark ? Color.FromArgb(100, 160, 255) : Color.Blue;
+                    ll.ActiveLinkColor = dark ? Color.FromArgb(140, 190, 255) : Color.Red;
+                    ll.ForeColor = dark ? DarkMutedText : SystemColors.GrayText;
+                    break;
                 case Label lbl when lbl.ForeColor == SystemColors.GrayText || lbl.ForeColor == DarkMutedText:
                     lbl.ForeColor = dark ? DarkMutedText : SystemColors.GrayText;
                     break;

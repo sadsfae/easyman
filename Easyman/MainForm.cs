@@ -177,6 +177,15 @@ public partial class MainForm : Form
         }
     }
 
+    private void LnkCredit_Click(object? sender, LinkLabelLinkClickedEventArgs e)
+    {
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "https://github.com/sadsfae/easyman",
+            UseShellExecute = true
+        });
+    }
+
     private void BtnRevert_Click(object? sender, EventArgs e)
     {
         if (_eqHostPath is null)

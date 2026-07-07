@@ -13,7 +13,7 @@ partial class MainForm
     private Button btnToggle;
     private Button btnRevert;
     private Button btnSettings;
-    private Label lblCredit;
+    private LinkLabel lnkCredit;
 
     protected override void Dispose(bool disposing)
     {
@@ -33,7 +33,7 @@ partial class MainForm
         btnToggle = new Button();
         btnRevert = new Button();
         btnSettings = new Button();
-        lblCredit = new Label();
+        lnkCredit = new LinkLabel();
         SuspendLayout();
 
         // lblTitle
@@ -96,13 +96,14 @@ partial class MainForm
         btnSettings.Text = "Settings";
         btnSettings.Click += BtnSettings_Click;
 
-        // lblCredit
-        lblCredit.Font = new Font("Segoe UI", 8F);
-        lblCredit.ForeColor = SystemColors.GrayText;
-        lblCredit.Location = new Point(12, 240);
-        lblCredit.Size = new Size(290, 20);
-        lblCredit.Text = "Powered by p99-login-middlemand by @rm-you";
-        lblCredit.TextAlign = ContentAlignment.MiddleLeft;
+        // lnkCredit
+        lnkCredit.Font = new Font("Segoe UI", 8F);
+        lnkCredit.Location = new Point(12, 240);
+        lnkCredit.Size = new Size(290, 20);
+        lnkCredit.Text = "Built by Repo/Gretchen <Europa>";
+        lnkCredit.LinkArea = new LinkArea(0, 5);
+        lnkCredit.TextAlign = ContentAlignment.MiddleLeft;
+        lnkCredit.LinkClicked += LnkCredit_Click;
 
         // MainForm
         AutoScaleDimensions = new SizeF(7F, 15F);
@@ -117,7 +118,7 @@ partial class MainForm
         Controls.Add(btnToggle);
         Controls.Add(btnRevert);
         Controls.Add(btnSettings);
-        Controls.Add(lblCredit);
+        Controls.Add(lnkCredit);
         FormBorderStyle = FormBorderStyle.FixedSingle;
         MaximizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
