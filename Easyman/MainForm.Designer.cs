@@ -122,7 +122,7 @@ partial class MainForm
         FormBorderStyle = FormBorderStyle.FixedSingle;
         MaximizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
-        Text = "Easyman - Middleman Helper for P99";
+        Text = "Easyman - P99 Middleman Helper";
         ResumeLayout(false);
         PerformLayout();
     }
