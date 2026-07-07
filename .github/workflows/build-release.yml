@@ -1,0 +1,62 @@
+name: Build Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate version tag
+        id: version
+        shell: bash
+        run: |
+          TAG="v0.1.$(git rev-list --count HEAD)"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore Easyman/Easyman.csproj
+
+      - name: Publish
+        run: >
+          dotnet publish Easyman/Easyman.csproj
+          -c Release
+          -r win-x64
+          --self-contained
+          -p:PublishSingleFile=true
+          -o ./publish
+
+      - name: Download middleman
+        run: |
+          Invoke-WebRequest `
+            -Uri "https://github.com/rm-you/p99-login-middlemand/releases/download/win-rel1/p99-login-middlemand.zip" `
+            -OutFile middleman.zip
+          Expand-Archive -Path middleman.zip -DestinationPath middleman-extract
+          Copy-Item middleman-extract/p99-login-middlemand.exe ./publish/middleman.exe
+
+      - name: Package release zip
+        run: Compress-Archive -Path ./publish/Easyman.exe, ./publish/middleman.exe -DestinationPath ./Easyman-${{ steps.version.outputs.tag }}.zip
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Easyman ${{ steps.version.outputs.tag }}
+          files: ./Easyman-${{ steps.version.outputs.tag }}.zip
+          generate_release_notes: true
+          make_latest: true
