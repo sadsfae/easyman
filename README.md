@@ -1,6 +1,8 @@
 # Easyman
 
 [![Latest Release](https://img.shields.io/github/v/release/sadsfae/easyman)](https://github.com/sadsfae/easyman/releases/latest)
+[![Build Release](https://github.com/sadsfae/easyman/actions/workflows/build-release.yml/badge.svg)](https://github.com/sadsfae/easyman/actions/workflows/build-release.yml)
+[![Lint](https://github.com/sadsfae/easyman/actions/workflows/lint.yml/badge.svg)](https://github.com/sadsfae/easyman/actions/workflows/lint.yml)
 
 A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand), making it easy for Project 1999 players to enable and disable the login middleman proxy without manual file editing.
 
