@@ -1,6 +1,8 @@
 # Easyman
 
 [![Latest Release](https://img.shields.io/github/v/release/sadsfae/easyman)](https://github.com/sadsfae/easyman/releases/latest)
+[![Build Release](https://github.com/sadsfae/easyman/actions/workflows/build-release.yml/badge.svg)](https://github.com/sadsfae/easyman/actions/workflows/build-release.yml)
+[![Lint](https://github.com/sadsfae/easyman/actions/workflows/lint.yml/badge.svg)](https://github.com/sadsfae/easyman/actions/workflows/lint.yml)
 
 A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand), making it easy for Project 1999 players to enable and disable the login middleman proxy without manual file editing.
 
@@ -18,10 +20,10 @@ A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/rm-yo
 
 ## Credits
 
-This tool is a GUI helper for **middlemand**, created by [@rm-you](https://github.com/rm-you).
-Middlemand is a login proxy for EverQuest that relays connections between your client and the EQEmulator login server. All credit for the core middleman proxy goes to [@rm-you](https://github.com/rm-you) and the original [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand) project (forked from [Zaela/p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand)).
+Easyman is a GUI wrapper for **middlemand**, a login proxy for EverQuest that relays connections between your client and the EQEmulator login server.
 
-Easyman wraps middlemand in a point-and-click interface so less technical users can get up and running quickly. The `middleman.exe` binary is bundled directly in the release download.
+- **middlemand** originally written by [@Zaela](https://github.com/Zaela) -- [p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand)
+- **Windows port** by [@rm-you](https://github.com/rm-you) -- [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand)
 
 ## Download
 
@@ -55,6 +57,24 @@ If you close Easyman while middleman is still running, it will ask whether to di
 
 Easyman also detects if a `middleman.exe` process is already running when it starts, and offers to take it over so you never end up with duplicate processes.
 
+## Allowing Additional EMU Servers
+
+By default, middleman filters the server list to only show Project 1999 servers (Blue, Green, Red). You can whitelist additional EQEmu servers so they are not filtered out.
+
+**Via the GUI:** Open **Settings** and use the **Allowed EMU Servers** section to add, remove, or revert entries. Changes are saved to `allowed_emu.txt` alongside the executable.
+
+**Via the config file:** Edit `allowed_emu.txt` in the same folder as `Easyman.exe`. Add one server name per line. Matching is case-insensitive and uses partial/substring matching, so `Ryhoz` would match a server named `Ryhoz world`. Lines starting with `#` or `;` are treated as comments.
+
+Example `allowed_emu.txt`:
+
+```ini
+# Allowed EMU server names (case-insensitive substring match)
+# Servers whose name starts with "Project 1999" are always allowed.
+Ryhoz world
+```
+
+If `allowed_emu.txt` is missing, only Project 1999 servers are shown (the original behavior). Middleman reads this file on startup, so restart it after making manual edits.
+
 ## Windows SmartScreen
 
 On first run, Windows may show a "Windows protected your PC" warning because the application is new and not yet widely recognized. This is normal for any newly released application.
@@ -76,6 +96,6 @@ On Linux, add `-p:EnableWindowsTargeting=true` to cross-compile for Windows.
 
 ## License
 
-[Open Source](LICENSE.md) (GPLv3). See the [middlemand project](https://github.com/rm-you/p99-login-middlemand) for upstream licensing.
+[Open Source](LICENSE.md) (GPLv3). See [Zaela/p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand) for upstream licensing.
 
-Built with love by Repo/Gretchen \<Europa\>
+Built with :heart: by Repo/Gretchen \<Europa\>

@@ -23,3 +23,7 @@ packages/
 
 ## Publish output
 publish/
+
+## Middleman C build output
+middlemand/bin/
+middlemand/build/

@@ -225,6 +225,29 @@ public partial class MainForm : Form
         _settings.OnCloseAction = form.ChosenCloseAction;
         _settings.UseDarkTheme = form.ChosenTheme;
         SaveSettings();
+
+        try
+        {
+            AllowedServersManager.Save(form.AllowedServers);
+
+            if (_middleman.IsRunning)
+            {
+                MessageBox.Show(
+                    "Middleman must be restarted for server list changes to take effect.",
+                    "Easyman",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Could not save allowed servers: {ex.Message}",
+                "Easyman",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
+        }
+
         ApplyTheme();
     }
 

@@ -1,0 +1,44 @@
+name: Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  csharp:
+    name: C# lint
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore Easyman/Easyman.csproj
+
+      - name: Build (warnings as errors)
+        run: dotnet build Easyman/Easyman.csproj -c Release --no-restore /warnaserror
+
+      - name: Check formatting
+        run: dotnet format Easyman/Easyman.csproj --verify-no-changes --verbosity diagnostic
+
+  c-lint:
+    name: C lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y cppcheck gcc-mingw-w64-i686
+
+      - name: Build (warnings as errors)
+        run: make -C middlemand CFLAGS="-O2 -Wall -Wextra -Werror -Wno-strict-aliasing -Wno-sign-compare"
+
+      - name: Static analysis
+        run: cppcheck --enable=warning,performance --error-exitcode=1 --quiet middlemand/src/

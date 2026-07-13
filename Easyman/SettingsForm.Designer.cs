@@ -14,6 +14,12 @@ partial class SettingsForm
     private RadioButton rbThemeLight;
     private RadioButton rbThemeDark;
 
+    private GroupBox grpAllowedServers;
+    private ListBox lstServers;
+    private Button btnAddServer;
+    private Button btnRemoveServer;
+    private Button btnRevertServers;
+
     private Button btnSave;
     private Button btnCancel;
 
@@ -90,25 +96,60 @@ partial class SettingsForm
         grpTheme.Controls.Add(rbThemeLight);
         grpTheme.Controls.Add(rbThemeDark);
 
+        // grpAllowedServers
+        grpAllowedServers = new GroupBox();
+        lstServers = new ListBox();
+        btnAddServer = new Button();
+        btnRemoveServer = new Button();
+        btnRevertServers = new Button();
+
+        grpAllowedServers.Text = "Allowed EMU Servers";
+        grpAllowedServers.Location = new Point(12, 228);
+        grpAllowedServers.Size = new Size(310, 140);
+
+        lstServers.Location = new Point(12, 22);
+        lstServers.Size = new Size(200, 108);
+
+        btnAddServer.Text = "Add...";
+        btnAddServer.Location = new Point(220, 22);
+        btnAddServer.Size = new Size(80, 28);
+        btnAddServer.Click += BtnAddServer_Click;
+
+        btnRemoveServer.Text = "Remove";
+        btnRemoveServer.Location = new Point(220, 56);
+        btnRemoveServer.Size = new Size(80, 28);
+        btnRemoveServer.Click += BtnRemoveServer_Click;
+
+        btnRevertServers.Text = "Defaults";
+        btnRevertServers.Location = new Point(220, 90);
+        btnRevertServers.Size = new Size(80, 28);
+        btnRevertServers.Click += BtnRevertServers_Click;
+
+        grpAllowedServers.Controls.Add(lstServers);
+        grpAllowedServers.Controls.Add(btnAddServer);
+        grpAllowedServers.Controls.Add(btnRemoveServer);
+        grpAllowedServers.Controls.Add(btnRevertServers);
+
         // btnSave
         btnSave.Text = "Save";
-        btnSave.Location = new Point(160, 232);
+        btnSave.Location = new Point(160, 378);
         btnSave.Size = new Size(75, 28);
         btnSave.DialogResult = DialogResult.OK;
         btnSave.Click += BtnSave_Click;
 
         // btnCancel
         btnCancel.Text = "Cancel";
-        btnCancel.Location = new Point(245, 232);
+        btnCancel.Location = new Point(245, 378);
         btnCancel.Size = new Size(75, 28);
         btnCancel.DialogResult = DialogResult.Cancel;
 
         // SettingsForm
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(334, 272);
+        ClientSize = new Size(334, 418);
         Controls.Add(grpCloseBehavior);
         Controls.Add(grpTheme);
+        Controls.Add(grpAllowedServers);
         Controls.Add(btnSave);
         Controls.Add(btnCancel);
         FormBorderStyle = FormBorderStyle.FixedDialog;
