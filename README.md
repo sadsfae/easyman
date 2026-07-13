@@ -18,10 +18,10 @@ A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/rm-yo
 
 ## Credits
 
-This tool is a GUI helper for **middlemand**, created by [@rm-you](https://github.com/rm-you).
-Middlemand is a login proxy for EverQuest that relays connections between your client and the EQEmulator login server. All credit for the core middleman proxy goes to [@rm-you](https://github.com/rm-you) and the original [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand) project (forked from [Zaela/p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand)).
+Easyman is a GUI wrapper for **middlemand**, a login proxy for EverQuest that relays connections between your client and the EQEmulator login server.
 
-Easyman wraps middlemand in a point-and-click interface so less technical users can get up and running quickly. The `middleman.exe` binary is bundled directly in the release download.
+- **middlemand** originally written by [@Zaela](https://github.com/Zaela) -- [p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand)
+- **Windows port** by [@rm-you](https://github.com/rm-you) -- [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand)
 
 ## Download
 
@@ -94,6 +94,6 @@ On Linux, add `-p:EnableWindowsTargeting=true` to cross-compile for Windows.
 
 ## License
 
-[Open Source](LICENSE.md) (GPLv3). See the [middlemand project](https://github.com/rm-you/p99-login-middlemand) for upstream licensing.
+[Open Source](LICENSE.md) (GPLv3). See [Zaela/p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand) for upstream licensing.
 
-Built with love by Repo/Gretchen \<Europa\>
+Built with :heart: by Repo/Gretchen \<Europa\>
