@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - "Easyman/**"
+      - "middlemand/**"
+      - "allowed_emu.txt"
       - ".github/workflows/**"
 
 permissions:
@@ -44,16 +46,25 @@ jobs:
           -p:PublishSingleFile=true
           -o ./publish
 
-      - name: Download middleman
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          install: mingw-w64-i686-gcc make
+
+      - name: Build middleman
+        shell: msys2 {0}
         run: |
-          Invoke-WebRequest `
-            -Uri "https://github.com/rm-you/p99-login-middlemand/releases/download/win-rel1/p99-login-middlemand.zip" `
-            -OutFile middleman.zip
-          Expand-Archive -Path middleman.zip -DestinationPath middleman-extract
-          Copy-Item middleman-extract/p99-login-middlemand.exe ./publish/middleman.exe
+          cd middlemand
+          make
+
+      - name: Copy middleman and config
+        run: |
+          Copy-Item middlemand/bin/middleman.exe ./publish/middleman.exe
+          Copy-Item allowed_emu.txt ./publish/allowed_emu.txt
 
       - name: Package release zip
-        run: Compress-Archive -Path ./publish/Easyman.exe, ./publish/middleman.exe -DestinationPath ./Easyman-${{ steps.version.outputs.tag }}.zip
+        run: Compress-Archive -Path ./publish/Easyman.exe, ./publish/middleman.exe, ./publish/allowed_emu.txt -DestinationPath ./Easyman-${{ steps.version.outputs.tag }}.zip
 
       - name: Create Release
         uses: softprops/action-gh-release@v2

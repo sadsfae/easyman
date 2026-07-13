@@ -73,6 +73,10 @@ public static class ThemeHelper
                 case CheckBox cb:
                     cb.ForeColor = dark ? DarkText : SystemColors.ControlText;
                     break;
+                case ListBox lb:
+                    lb.BackColor = dark ? DarkSurface : SystemColors.Window;
+                    lb.ForeColor = dark ? DarkText : SystemColors.WindowText;
+                    break;
                 case GroupBox gb:
                     gb.ForeColor = dark ? DarkText : SystemColors.ControlText;
                     break;
