@@ -1,4 +1,4 @@
 # Allowed EMU server names (case-insensitive substring match)
 # One server name per line. Lines starting with # or ; are comments.
 # Servers whose name starts with "Project 1999" are always allowed.
-Ryhoz world
+Ryhoz's World
