@@ -3,10 +3,12 @@
 #include "connection.h"
 #include "protocol.h"
 #include "allowed.h"
+#include "crc.h"
 #include <ctype.h>
+#include <string.h>
 
 void check_fragment_finished(Connection* con);
-int process_first_fragment(Connection* con, uint8_t* data);
+int process_first_fragment(Connection* con, uint8_t* data, int len);
 void filter_server_list(Connection* con, int totalLen);
 
 uint16_t get_sequence(uint8_t* data)
@@ -106,13 +108,37 @@ void sequence_recv_packet(Connection* con, uint8_t* data, int len)
 {
     Sequence* seq = &con->sequence;
     uint16_t val = get_sequence(data);
-    Packet* p = get_packet_space(con, val, len);
+    Packet* p;
+    int prevAssigned;
+    uint16_t prevOut;
     uint32_t i;
 
+    /* A retransmit (the client's ack was lost) must keep the sequence it was
+     * relabeled to the first time, and must not advance seqToLocal again. */
+    prevAssigned = 0;
+    prevOut = 0;
+    if (val < seq->count && seq->packets[val].outAssigned)
+    {
+        prevAssigned = 1;
+        prevOut = seq->packets[val].outSeq;
+    }
+
+    p = get_packet_space(con, val, len);
     p->isFragment = 0;
 
-    /* Correct the sequence for the client */
-    *(uint16_t*)(&data[2]) = ToNetworkShort(seq->seqToLocal++);
+    /* Correct the sequence for the client (we may have swallowed fragments) */
+    if (prevAssigned)
+    {
+        p->outSeq = prevOut;
+        p->outAssigned = 1;
+        *(uint16_t*)(&data[2]) = ToNetworkShort(prevOut);
+    }
+    else
+    {
+        p->outSeq = seq->seqToLocal;
+        p->outAssigned = 1;
+        *(uint16_t*)(&data[2]) = ToNetworkShort(seq->seqToLocal++);
+    }
 
     if (val != seq->seqFromRemote)
         return;
@@ -123,7 +149,7 @@ void sequence_recv_packet(Connection* con, uint8_t* data, int len)
         {
             seq->seqFromRemote++;
 
-            if (seq->packets[i].isFragment && process_first_fragment(con, seq->packets[i].data))
+            if (seq->packets[i].isFragment && process_first_fragment(con, seq->packets[i].data, seq->packets[i].len))
             {
                 check_fragment_finished(con);
                 break;
@@ -142,8 +168,8 @@ void sequence_recv_fragment(Connection* con, uint8_t* data, int len)
     copy_fragment(con, p, data, len);
 
     if (val == seq->seqFromRemote)
-        process_first_fragment(con, data);
-    else if (seq->fragCount > 0)
+        process_first_fragment(con, data, len);
+    else if (seq->fragTotal > 0)
         check_fragment_finished(con);
 }
 
@@ -196,16 +222,27 @@ void sequence_recv_combined(Connection* con, uint8_t* data, int len)
     }
 }
 
-int process_first_fragment(Connection* con, uint8_t* data)
+int process_first_fragment(Connection* con, uint8_t* data, int len)
 {
     Sequence* seq = &con->sequence;
-    FirstFrag* frag = (FirstFrag*)data;
+    uint16_t appOpcode;
 
-    if (frag->appOpcode != 0x18) /* OP_ServerListResponse */
+    if (len < (int)sizeof(FirstFrag))
+        return 0;
+
+    /* AppOpcode is little-endian on the wire (the original C compared it
+     * without a byte swap; the Go port reads LE). */
+    appOpcode = (uint16_t)(data[8] | (data[9] << 8));
+
+    if (appOpcode != 0x18) /* OP_ServerListResponse */
         return 0;
 
     seq->fragStart = get_sequence(data);
-    seq->fragCount = (ToHostLong(frag->totalLen) - (512 - 8)) / (512 - 4) + 2;
+    /* TotalLength is big-endian: the expected server-list payload bytes.
+     * Track a byte count (not a predicted fragment count) so reassembly
+     * works regardless of datagram sizes / CRCs. */
+    seq->fragTotal = ((uint32_t)data[4] << 24) | ((uint32_t)data[5] << 16)
+                   | ((uint32_t)data[6] << 8) | data[7];
     return 1;
 }
 
@@ -215,13 +252,20 @@ void check_fragment_finished(Connection* con)
     uint32_t index = seq->fragStart;
     int got;
     Packet* p;
-    int n = seq->fragCount;
-    int count = 1;
+
+    if (seq->fragTotal == 0)
+        return;
+
+    if (index >= seq->count)
+        return;
 
     p = &seq->packets[index];
+    if (p->len == 0 || !p->data)
+        return;
+
     got = p->len - sizeof(FirstFrag) + 2; /* AppOpcode is counted */
 
-    while (count < n)
+    while (got < (int)seq->fragTotal)
     {
         index++;
         if (index >= seq->count)
@@ -232,11 +276,10 @@ void check_fragment_finished(Connection* con)
             return;
 
         got += p->len - sizeof(Frag);
-        count++;
     }
 
     /* If we reach here, we had the whole sequence! */
-    filter_server_list(con, got - 2); /* Don't count AppOpcode here */
+    filter_server_list(con, (int)seq->fragTotal - 2); /* Don't count AppOpcode here */
 }
 
 int compare_prefix(const char* a, const char* b, int len)
@@ -261,9 +304,12 @@ void filter_server_list(Connection* con, int totalLen)
     Packet* p;
     uint8_t* serverList;
     uint8_t* outBuffer;
-    int outBufSize = totalLen + 26; /* header + enough room for all servers */
+    int outBufSize = totalLen + 26 + 4; /* header + room for all servers + CRC headroom */
     int outLen = 0;
     char* name;
+
+    if (index >= seq->count)
+        return;
 
     p = &seq->packets[index];
     if (p->len == 0)
@@ -286,6 +332,12 @@ void filter_server_list(Connection* con, int totalLen)
     while (pos < totalLen)
     {
         index++;
+        if (index >= seq->count)
+        {
+            free(serverList);
+            free(outBuffer);
+            return;
+        }
         p = &seq->packets[index];
 
         memcpy(serverList + pos, p->data + sizeof(Frag), p->len - sizeof(Frag));
@@ -303,7 +355,7 @@ void filter_server_list(Connection* con, int totalLen)
     /* First 16 bytes of the server list packet is some kind of header, copy it over */
     for (i = 0; i < 16; i++)
         outBuffer[i + 6] = serverList[i];
-    
+
     /* outBuffer[22] is a 4-byte count of the number of servers on the list -- we don't know the value yet, probably 2 */
     outLen = 16 + 6 + 4;
     outCount = 0;
@@ -337,7 +389,7 @@ void filter_server_list(Connection* con, int totalLen)
     *(int*)(&outBuffer[22]) = outCount;
 
     seq->seqFromRemote = index + 1;
-    seq->fragCount = 0;
+    seq->fragTotal = 0;
     seq->fragStart = 0;
     free(serverList);
 
@@ -349,6 +401,26 @@ void filter_server_list(Connection* con, int totalLen)
     }
     else
     {
+        /* connection_send only appends a CRC when it fits txBuf; for an
+         * oversized rebuilt server list we append it here ourselves. */
+        if (con->crcBytes != 0 && !packet_crc_exempt(outBuffer))
+        {
+            uint32_t crc = packet_crc(outBuffer, outLen, con->crcKey);
+            if (con->crcBytes == 2)
+            {
+                outBuffer[outLen] = (uint8_t)(crc >> 8);
+                outBuffer[outLen + 1] = (uint8_t)(crc & 0xff);
+                outLen += 2;
+            }
+            else if (con->crcBytes == 4)
+            {
+                outBuffer[outLen] = (uint8_t)(crc >> 24);
+                outBuffer[outLen + 1] = (uint8_t)(crc >> 16);
+                outBuffer[outLen + 2] = (uint8_t)(crc >> 8);
+                outBuffer[outLen + 3] = (uint8_t)crc;
+                outLen += 4;
+            }
+        }
         connection_send(con, outBuffer, outLen, 0);
         free(outBuffer);
     }

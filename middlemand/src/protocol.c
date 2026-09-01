@@ -79,6 +79,21 @@ void recv_from_remote(Connection* con, uint8_t* data, int len)
     case 0x02: /* OP_SessionResponse */
         con->inSession = 1;
         sequence_free(con);
+        /* Adopt the session's CRC contract (ReliableStreamConnectReply:
+         * zero, opcode, connect_code u32, encode_key u32, crc_bytes u8,
+         * encode_pass1 u8, encode_pass2 u8, max_packet_size u32).  The
+         * P99 login server now sends crc_bytes=2, so every non-negotiation
+         * packet must have its checksum stripped on the way in and
+         * recomputed on the way out. */
+        if (len >= 17)
+        {
+            uint32_t key = ((uint32_t)data[6] << 24) | ((uint32_t)data[7] << 16)
+                         | ((uint32_t)data[8] << 8) | data[9];
+            con->crcKey = key;
+            con->crcBytes = data[10];
+            if (data[11] != 0 || data[12] != 0)
+                fprintf(stderr, "middleman: WARNING - server enabled packet encoding (%d/%d) the proxy doesn't support\n", data[11], data[12]);
+        }
         break;
     case 0x03: /* OP_Combined */
         sequence_recv_combined(con, data, len);

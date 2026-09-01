@@ -6,8 +6,8 @@ BINDIR = ./bin/
 SRCDIR = ./src/
 OBJDIR = ./build/
 
-_OBJS = main.o connection.o protocol.o sequence.o allowed.o
-_DEPS = connection.h protocol.h sequence.h netcode.h errors.h allowed.h
+_OBJS = main.o connection.o protocol.o sequence.o allowed.o crc.o
+_DEPS = connection.h protocol.h sequence.h netcode.h errors.h allowed.h crc.h
 
 OBJS = $(patsubst %,$(OBJDIR)%,$(_OBJS))
 DEPS = $(patsubst %,$(SRCDIR)%,$(_DEPS))

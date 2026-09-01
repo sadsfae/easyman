@@ -14,6 +14,8 @@ typedef struct Packet {
     int isFragment;
     int len;
     uint8_t* data;
+    uint16_t outSeq;    /* client-facing sequence this packet was relabeled to */
+    int outAssigned;    /* set once the packet already consumed a seqToLocal */
 } Packet;
 
 typedef struct Sequence {
@@ -21,7 +23,8 @@ typedef struct Sequence {
     uint32_t capacity;
     uint32_t count;
     uint32_t fragStart;
-    int fragCount;
+    uint32_t fragTotal; /* Expected payload bytes of the in-flight fragmented
+                           server list (0 = none) */
     uint16_t seqToLocal;    /* What the client thinks the next sequence from the login server should be */
     uint16_t seqFromRemote; /* The next "real" sequence we expect from the login server */
 } Sequence;
