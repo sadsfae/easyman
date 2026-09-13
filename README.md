@@ -25,14 +25,35 @@ Easyman is a GUI wrapper for **middlemand**, a login proxy for EverQuest that re
 - **middlemand** originally written by [@Zaela](https://github.com/Zaela) -- [p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand)
 - **Windows port** by [@rm-you](https://github.com/rm-you) -- [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand)
 
-## Download
+## Installation
 
-Grab the latest `Easyman-vX.X.X.zip` from the [Releases](../../releases) page. Extract the zip -- it contains both `Easyman.exe` and `middleman.exe`.
+Grab the latest release from the [Releases](../../releases) page.
+
+**One-click installer (recommended).** Download and run
+`Easyman-setup-vX.X.X.exe`. It is a self-extracting installer built with
+IExpress (the extractor that ships with Windows). It:
+
+- installs Easyman to `%USERPROFILE%\easyman`
+- creates an `Easyman` shortcut on your desktop (Windows system Network
+  icon, `shell32.dll,18`)
+- launches Easyman
+
+No admin rights are needed. Re-running it refreshes the install, stopping
+any running Easyman/middleman first. Because the EXE is unsigned, Windows
+SmartScreen warns once: verify the SHA-256 checksums listed in
+`SHA256SUMS.txt` (zip and installer EXE), then choose **More info > Run
+anyway**.
+
+**Manual install (portable zip).** Download and extract
+`Easyman-vX.X.X.zip` to any folder. Both `Easyman.exe` and
+`middleman.exe` must be in the same folder, then run `Easyman.exe`. This
+is the no-install path: nothing is written outside the folder and no admin
+rights are needed.
 
 ## Usage
 
-1. Extract the zip to any folder. Both `Easyman.exe` and `middleman.exe` must be in the same folder.
-2. Run `Easyman.exe`.
+1. Install Easyman: run the one-click installer, or extract the zip to a folder with both `Easyman.exe` and `middleman.exe`.
+2. Run `Easyman.exe` (the one-click installer launches it for you).
 3. Click **Browse** and locate your `eqhost.txt` file in your EverQuest installation directory. This is a one-time step -- Easyman remembers the path.
 4. Click **Enable Middleman** to start the proxy.
 5. Launch EverQuest and log in normally.
@@ -77,7 +98,7 @@ If `allowed_emu.txt` is missing, only Project 1999 servers are shown (the origin
 
 ## Windows SmartScreen
 
-On first run, Windows may show a "Windows protected your PC" warning because the application is new and not yet widely recognized. This is normal for any newly released application.
+On first run, Windows may show a "Windows protected your PC" warning because the application is new and not yet widely recognized. This is normal for any newly released application. It applies to `Easyman.exe` and to the self-extracting installer EXE alike.
 
 To proceed:
 

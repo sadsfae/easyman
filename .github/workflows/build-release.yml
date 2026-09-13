@@ -8,6 +8,16 @@ on:
       - "Easyman/**"
       - "middlemand/**"
       - "allowed_emu.txt"
+      - "tools/**"
+      - ".github/workflows/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "Easyman/**"
+      - "middlemand/**"
+      - "allowed_emu.txt"
+      - "tools/**"
       - ".github/workflows/**"
 
 permissions:
@@ -66,12 +76,93 @@ jobs:
       - name: Package release zip
         run: Compress-Archive -Path ./publish/Easyman.exe, ./publish/middleman.exe, ./publish/allowed_emu.txt -DestinationPath ./Easyman-${{ steps.version.outputs.tag }}.zip
 
+      - name: Stage SFX payload
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force staging | Out-Null
+          Copy-Item publish\Easyman.exe, publish\middleman.exe, publish\allowed_emu.txt, tools\run-setup.cmd, tools\setup-easyman.ps1 staging\
+          Get-ChildItem staging | Select-Object Name, Length
+
+      - name: Build installer (IExpress)
+        id: sfx
+        shell: pwsh
+        timeout-minutes: 10
+        run: |
+          $root = (Get-Location).Path
+          $exeName = "Easyman-setup-${{ steps.version.outputs.tag }}.exe"
+          $sed = @"
+          [Version]
+          Class=IEXPRESS
+          SEDVersion=3
+          [Options]
+          PackagePurpose=InstallApp
+          ShowInstallProgramWindow=1
+          HideExtractAnimation=0
+          UseLongFileName=1
+          InsideCompressed=0
+          CAB_FixedSize=0
+          CAB_ResvCodeSigning=0
+          RebootMode=N
+          InstallPrompt=%InstallPrompt%
+          DisplayLicense=%DisplayLicense%
+          FinishMessage=%FinishMessage%
+          TargetName=%TargetName%
+          FriendlyName=%FriendlyName%
+          AppLaunched=%AppLaunched%
+          PostInstallCmd=%PostInstallCmd%
+          AdminQuietInstCmd=%AdminQuietInstCmd%
+          UserQuietInstCmd=%UserQuietInstCmd%
+          SourceFiles=SourceFiles
+          [Strings]
+          InstallPrompt=
+          DisplayLicense=
+          FinishMessage=
+          TargetName=$root\$exeName
+          FriendlyName=Easyman
+          AppLaunched=cmd.exe /c run-setup.cmd
+          PostInstallCmd=<None>
+          AdminQuietInstCmd=
+          UserQuietInstCmd=
+          FILE0="run-setup.cmd"
+          FILE1="setup-easyman.ps1"
+          FILE2="Easyman.exe"
+          FILE3="middleman.exe"
+          FILE4="allowed_emu.txt"
+          [SourceFiles]
+          SourceFiles0=$root\staging
+          [SourceFiles0]
+          %FILE0%=
+          %FILE1%=
+          %FILE2%=
+          %FILE3%=
+          %FILE4%=
+          "@
+          $sed | Out-File -FilePath config.sed -Encoding ascii
+          # iexpress.exe is a GUI-subsystem app: PowerShell does not wait for it
+          # when invoked directly, so launch it through Start-Process -Wait.
+          $p = Start-Process -FilePath iexpress.exe -ArgumentList '/N','/Q','/M','config.sed' -Wait -PassThru
+          Write-Host "iexpress exit code: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) { throw "iexpress failed with exit code $($p.ExitCode)" }
+          if (-not (Test-Path "$root\$exeName")) { throw "iexpress did not produce $exeName" }
+          $zipName = "Easyman-${{ steps.version.outputs.tag }}.zip"
+          $zipHash = (Get-FileHash "$root\$zipName" -Algorithm SHA256).Hash
+          $exeHash = (Get-FileHash "$root\$exeName" -Algorithm SHA256).Hash
+          "$zipHash  $zipName" | Out-File SHA256SUMS.txt -Encoding ascii
+          "$exeHash  $exeName" | Out-File SHA256SUMS.txt -Encoding ascii -Append
+          "sha256_zip=$zipHash" | Out-File $env:GITHUB_OUTPUT -Append
+          "sha256_exe=$exeHash" | Out-File $env:GITHUB_OUTPUT -Append
+          Get-Item "$root\$exeName", "$root\$zipName", "$root\SHA256SUMS.txt" | Select-Object Name, Length
+
       - name: Create Release
+        if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           name: Easyman ${{ steps.version.outputs.tag }}
-          files: ./Easyman-${{ steps.version.outputs.tag }}.zip
+          files: |
+            ./Easyman-${{ steps.version.outputs.tag }}.zip
+            ./Easyman-setup-${{ steps.version.outputs.tag }}.exe
+            ./SHA256SUMS.txt
           generate_release_notes: true
           make_latest: true
           body: |
@@ -85,6 +176,22 @@ jobs:
             - Launch EverQuest and log in normally
             - **Keep Easyman open** while you play (you can minimize it)
             - When done, click **Disable Middleman** or close Easyman
+
+            ## One-click installer
+
+            Prefer one click? Run `Easyman-setup-vX.X.X.exe` below. It is a
+            self-extracting installer (built with the IExpress extractor that
+            ships with Windows) that:
+            - installs Easyman to `%USERPROFILE%\easyman` (re-runnable;
+              any running Easyman/middleman is stopped first)
+            - creates an `Easyman` desktop shortcut using the Windows system
+              Network icon (`shell32.dll,18`)
+            - launches Easyman
+            The EXE is unsigned, so Windows SmartScreen warns once; verify
+            the SHA-256 in `SHA256SUMS.txt` before running
+            (zip: `${{ steps.sfx.outputs.sha256_zip }}`,
+            installer EXE: `${{ steps.sfx.outputs.sha256_exe }}`). The zip
+            remains the portable, no-install path.
 
             ## Windows SmartScreen
 
