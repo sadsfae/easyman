@@ -6,6 +6,7 @@
 
 A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand) by [@Zaela](https://github.com/Zaela) (first Windows build by [@rm-you](https://github.com/rm-you)), making it easy for Project 1999 players to enable and disable the login middleman proxy without manual file editing.
 
+- As of 2026-08-20 `middlemand` [in any form isn't needed solely for fixing connectivity issues](https://www.project1999.com/forums/showpost.php?p=3799197&postcount=8), only for filtering non P99 servers and optionally whitelisting preferred EQEmu servers of your choice.
 - This repository also contains C fixes, minor enhancements and works with EQEmu as of 2026-09
 
 **First Launch** Browse your EQ directory for `eqhost.txt` and click `Enable Middleman`
