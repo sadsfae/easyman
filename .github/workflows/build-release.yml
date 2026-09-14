@@ -144,10 +144,14 @@ jobs:
           Write-Host "iexpress exit code: $($p.ExitCode)"
           if ($p.ExitCode -ne 0) { throw "iexpress failed with exit code $($p.ExitCode)" }
           if (-not (Test-Path "$root\$exeName")) { throw "iexpress did not produce $exeName" }
-          $hash = (Get-FileHash "$root\$exeName" -Algorithm SHA256).Hash
-          "$hash  $exeName" | Out-File SHA256SUMS.txt -Encoding ascii
-          "sha256=$hash" | Out-File $env:GITHUB_OUTPUT -Append
-          Get-Item "$root\$exeName", "$root\SHA256SUMS.txt" | Select-Object Name, Length
+          $zipName = "Easyman-${{ steps.version.outputs.tag }}.zip"
+          $zipHash = (Get-FileHash "$root\$zipName" -Algorithm SHA256).Hash
+          $exeHash = (Get-FileHash "$root\$exeName" -Algorithm SHA256).Hash
+          "$zipHash  $zipName" | Out-File SHA256SUMS.txt -Encoding ascii
+          "$exeHash  $exeName" | Out-File SHA256SUMS.txt -Encoding ascii -Append
+          "sha256_zip=$zipHash" | Out-File $env:GITHUB_OUTPUT -Append
+          "sha256_exe=$exeHash" | Out-File $env:GITHUB_OUTPUT -Append
+          Get-Item "$root\$exeName", "$root\$zipName", "$root\SHA256SUMS.txt" | Select-Object Name, Length
 
       - name: Create Release
         if: github.event_name == 'push'
@@ -162,31 +166,35 @@ jobs:
           generate_release_notes: true
           make_latest: true
           body: |
-            ## Quick Start
+            ## One-click installer (recommended)
 
-            - Download the `.zip` file below and extract it to any folder
-            - Both `Easyman.exe` and `middleman.exe` must be in the same folder
-            - Run `Easyman.exe`
-            - Click **Browse** and locate your `eqhost.txt` in your EverQuest installation directory (one-time setup)
-            - Click **Enable Middleman** to start the login proxy
-            - Launch EverQuest and log in normally
-            - **Keep Easyman open** while you play (you can minimize it)
-            - When done, click **Disable Middleman** or close Easyman
+            | | |
+            | --- | --- |
+            | Runs | `Easyman-setup-vX.X.X.exe` (IExpress self-extractor, built into Windows) |
+            | Installs to | `%USERPROFILE%\easyman`, no admin rights needed |
+            | Desktop | `Easyman` shortcut, Windows system Network icon (`shell32.dll,18`) |
+            | Launch | Easyman opens automatically |
+            | Re-run | Refreshes the install; any running Easyman/middleman is stopped first |
 
-            ## One-click installer
+            The EXE is unsigned, so Windows SmartScreen warns once
+            (More info > Run anyway). Verify the SHA-256 in
+            `SHA256SUMS.txt` before running (zip:
+            `${{ steps.sfx.outputs.sha256_zip }}`, installer EXE:
+            `${{ steps.sfx.outputs.sha256_exe }}`).
 
-            Prefer one click? Run `Easyman-setup-vX.X.X.exe` below. It is a
-            self-extracting installer (built with the IExpress extractor that
-            ships with Windows) that:
-            - installs Easyman to `%USERPROFILE%\easyman` (re-runnable;
-              any running Easyman/middleman is stopped first)
-            - creates an `Easyman` desktop shortcut using the Windows system
-              Network icon (`shell32.dll,18`)
-            - launches Easyman
-            The EXE is unsigned, so Windows SmartScreen warns once; verify
-            the SHA-256 listed in `SHA256SUMS.txt` before running
-            (installer EXE: `${{ steps.sfx.outputs.sha256 }}`). The zip
-            remains the portable, no-install path.
+            ## Portable zip (secondary)
+
+            Download and extract `Easyman-vX.X.X.zip` to any folder. Both
+            `Easyman.exe` and `middleman.exe` must be in the same folder,
+            then run `Easyman.exe`. No install, no admin.
+
+            ## First run
+
+            1. Click **Browse** and locate your `eqhost.txt` in your EverQuest installation directory (one-time setup)
+            2. Click **Enable Middleman** to start the login proxy
+            3. Launch EverQuest and log in normally
+            4. **Keep Easyman open** while you play (you can minimize it)
+            5. When done, click **Disable Middleman** or close Easyman
 
             ## Windows SmartScreen
 
@@ -196,7 +204,8 @@ jobs:
 
             ## Credits
 
-            Powered by [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand) by [@rm-you](https://github.com/rm-you)
+            Middlemand by [@Zaela](https://github.com/Zaela), with the first
+            Windows build by [@rm-you](https://github.com/rm-you).
 
             ---
 

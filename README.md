@@ -4,7 +4,7 @@
 [![Build Release](https://github.com/sadsfae/easyman/actions/workflows/build-release.yml/badge.svg)](https://github.com/sadsfae/easyman/actions/workflows/build-release.yml)
 [![Lint](https://github.com/sadsfae/easyman/actions/workflows/lint.yml/badge.svg)](https://github.com/sadsfae/easyman/actions/workflows/lint.yml)
 
-A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand), making it easy for Project 1999 players to enable and disable the login middleman proxy without manual file editing.
+A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand) by [@Zaela](https://github.com/Zaela) (first Windows build by [@rm-you](https://github.com/rm-you)), making it easy for Project 1999 players to enable and disable the login middleman proxy without manual file editing.
 
 **First Launch**  Browse your EQ directory for `eqhost.txt` and click `Enable Middleman`
 
@@ -22,27 +22,45 @@ A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/rm-yo
 
 Easyman is a GUI wrapper for **middlemand**, a login proxy for EverQuest that relays connections between your client and the EQEmulator login server.
 
-- **middlemand** originally written by [@Zaela](https://github.com/Zaela) -- [p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand)
-- **Windows port** by [@rm-you](https://github.com/rm-you) -- [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand)
+- **middlemand** written by [@Zaela](https://github.com/Zaela) -- [p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand)
+- **first Windows build** by [@rm-you](https://github.com/rm-you) -- [p99-login-middlemand](https://github.com/rm-you/p99-login-middlemand)
 
-## Download
+## Installation
 
-Grab the latest `Easyman-vX.X.X.zip` from the [Releases](../../releases) page. Extract the zip -- it contains both `Easyman.exe` and `middleman.exe`.
+Grab the latest release from the [Releases](../../releases) page.
 
-The release page also ships `Easyman-setup-vX.X.X.exe`, a one-click
-self-extracting installer built with IExpress (the extractor that ships
-with Windows). Running it installs Easyman to `%USERPROFILE%\easyman`,
-creates an `Easyman` shortcut on your desktop using the Windows system
-Network icon (`shell32.dll,18`), and launches the app. Re-running it
-refreshes the install (any running Easyman/middleman is stopped first).
-SmartScreen warns once because the EXE is unsigned; verify the SHA-256 of
-the installer EXE listed in `SHA256SUMS.txt` before running, and prefer
-the zip path if you distrust the artifact.
+| Method | Artifact | What happens |
+| --- | --- | --- |
+| **One-click installer** (recommended) | `Easyman-setup-vX.X.X.exe` | Installs to `%USERPROFILE%\easyman`, creates an `Easyman` desktop shortcut (Windows Network icon), launches Easyman |
+| **Portable zip** (secondary) | `Easyman-vX.X.X.zip` | Extract anywhere; run `Easyman.exe` from the folder. No install, no admin |
+
+### One-click installer (recommended)
+
+Download and run `Easyman-setup-vX.X.X.exe`. It is a self-extracting
+installer built with IExpress (the extractor that ships with Windows):
+
+- **Installs to:** `%USERPROFILE%\easyman` (no admin rights needed)
+- **Desktop shortcut:** `Easyman` using the Windows system Network icon
+  (`shell32.dll,18`)
+- **Launch:** Easyman opens automatically
+- **Re-run:** refreshes the install; any running Easyman/middleman is
+  stopped first
+
+Because the EXE is unsigned, Windows SmartScreen warns once: verify the
+SHA-256 checksums listed in `SHA256SUMS.txt` (zip and installer EXE),
+then choose **More info > Run anyway**.
+
+### Portable zip (secondary)
+
+Download and extract `Easyman-vX.X.X.zip` to any folder. Both
+`Easyman.exe` and `middleman.exe` must be in the same folder, then run
+`Easyman.exe`. Nothing is written outside the folder and no admin rights
+are needed.
 
 ## Usage
 
-1. Extract the zip to any folder. Both `Easyman.exe` and `middleman.exe` must be in the same folder.
-2. Run `Easyman.exe`.
+1. Install Easyman: run the one-click installer, or extract the zip to a folder with both `Easyman.exe` and `middleman.exe`.
+2. Run `Easyman.exe` (the one-click installer launches it for you).
 3. Click **Browse** and locate your `eqhost.txt` file in your EverQuest installation directory. This is a one-time step -- Easyman remembers the path.
 4. Click **Enable Middleman** to start the proxy.
 5. Launch EverQuest and log in normally.
