@@ -36,7 +36,11 @@ int packet_crc_exempt(const uint8_t* data)
 {
     uint16_t opcode = (uint16_t)((data[0] << 8) | data[1]);
 
-    return opcode == 0x01 || opcode == 0x02 || opcode == 0x11;
+    /* Session-negotiation opcodes never carry a CRC (EQEmu PacketCanBeEncoded:
+     * SessionRequest 0x01, SessionResponse 0x02, OutOfSession 0x1d). 0x11 is
+     * kept exempt too: we never rewrite these opcodes, so passing the datagram
+     * through untouched is safe whether or not it is checksummed. */
+    return opcode == 0x01 || opcode == 0x02 || opcode == 0x11 || opcode == 0x1d;
 }
 
 uint32_t packet_crc(const uint8_t* data, int len, uint32_t key)
