@@ -6,7 +6,9 @@
 
 A simple Windows GUI wrapper for [p99-login-middlemand](https://github.com/Zaela/p99-login-middlemand) by [@Zaela](https://github.com/Zaela) (first Windows build by [@rm-you](https://github.com/rm-you)), making it easy for Project 1999 players to enable and disable the login middleman proxy without manual file editing.
 
-**First Launch**  Browse your EQ directory for `eqhost.txt` and click `Enable Middleman`
+- This repository also contains C fixes, minor enhancements and works with EQEmu as of 2026-09
+
+**First Launch** Browse your EQ directory for `eqhost.txt` and click `Enable Middleman`
 
 ![First Launch](image/easyman1.png)
 
@@ -29,10 +31,10 @@ Easyman is a GUI wrapper for **middlemand**, a login proxy for EverQuest that re
 
 Grab the latest release from the [Releases](../../releases) page.
 
-| Method | Artifact | What happens |
-| --- | --- | --- |
+| Method                                | Artifact                   | What happens                                                                                                        |
+| ------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | **One-click installer** (recommended) | `Easyman-setup-vX.X.X.exe` | Installs to `%USERPROFILE%\easyman`, creates an `Easyman` desktop shortcut (Windows Network icon), launches Easyman |
-| **Portable zip** (secondary) | `Easyman-vX.X.X.zip` | Extract anywhere; run `Easyman.exe` from the folder. No install, no admin |
+| **Portable zip** (secondary)          | `Easyman-vX.X.X.zip`       | Extract anywhere; run `Easyman.exe` from the folder. No install, no admin                                           |
 
 ### One-click installer (recommended)
 
