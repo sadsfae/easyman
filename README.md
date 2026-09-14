@@ -29,6 +29,16 @@ Easyman is a GUI wrapper for **middlemand**, a login proxy for EverQuest that re
 
 Grab the latest `Easyman-vX.X.X.zip` from the [Releases](../../releases) page. Extract the zip -- it contains both `Easyman.exe` and `middleman.exe`.
 
+The release page also ships `Easyman-setup-vX.X.X.exe`, a one-click
+self-extracting installer built with IExpress (the extractor that ships
+with Windows). Running it installs Easyman to `%USERPROFILE%\easyman`,
+creates an `Easyman` shortcut on your desktop using the Windows system
+Network icon (`shell32.dll,18`), and launches the app. Re-running it
+refreshes the install (any running Easyman/middleman is stopped first).
+SmartScreen warns once because the EXE is unsigned; verify the SHA-256 of
+the installer EXE listed in `SHA256SUMS.txt` before running, and prefer
+the zip path if you distrust the artifact.
+
 ## Usage
 
 1. Extract the zip to any folder. Both `Easyman.exe` and `middleman.exe` must be in the same folder.
@@ -77,7 +87,7 @@ If `allowed_emu.txt` is missing, only Project 1999 servers are shown (the origin
 
 ## Windows SmartScreen
 
-On first run, Windows may show a "Windows protected your PC" warning because the application is new and not yet widely recognized. This is normal for any newly released application.
+On first run, Windows may show a "Windows protected your PC" warning because the application is new and not yet widely recognized. This is normal for any newly released application. It applies to `Easyman.exe` and to the self-extracting installer EXE alike.
 
 To proceed:
 
